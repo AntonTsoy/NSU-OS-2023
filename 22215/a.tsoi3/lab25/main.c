@@ -18,9 +18,16 @@ int main(int argc, char* argv[]) {
     if (pid == 0) {   /* Child */
         close(fd[0]);
         char msgout[] = "I wAnT to EAt PiZZa";
-        if (write(fd[1], msgout, MSGSIZE) == -1) {
-            perror("Error: Child write\n");
-        }
+        int written_bytes = 0;
+        int curr_write;
+        do {
+            curr_write = write(fd[1], msgout, MSGSIZE);
+            if (curr_write == -1) {
+                perror("Error: Child write\n");
+                return -1;
+            }
+            written_bytes += curr_write;
+        } while (written_bytes < MSGSIZE);
         close(fd[1]);
     }
     else if (pid > 0) {  /* Parent */
